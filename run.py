@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 
 import os
 import sys
@@ -8,7 +8,7 @@ project_root = os.path.dirname(os.path.abspath(__file__))
 os.environ["PATH"] = project_root + os.pathsep + os.environ.get("PATH", "")
 
 # On Windows, register NVIDIA CUDA DLL directories so onnxruntime-gpu can
-# find cuDNN/cublas. Python 3.8+ ignores PATH for extension-module native deps —
+# find cuDNN/cublas. Python 3.8+ ignores PATH for extension-module native deps â€”
 # os.add_dll_directory() is required. Also keep PATH for child processes/ffmpeg.
 if sys.platform == "win32":
     _site_packages = os.path.join(sys.prefix, "Lib", "site-packages")
@@ -30,6 +30,13 @@ if sys.platform == "win32":
                 os.add_dll_directory(_d)
             except (OSError, AttributeError):
                 pass
+            import ctypes
+            import glob
+            for _dll in glob.glob(os.path.join(_d, '*.dll')):
+                try:
+                    ctypes.CDLL(_dll)
+                except OSError:
+                    pass
 
     # On Windows, register OpenVINO DLL directories so onnxruntime's
     # OpenVINOExecutionProvider can find openvino.dll.  This must happen
@@ -41,10 +48,10 @@ if sys.platform == "win32":
         )
         add_openvino_libs_to_path()
     except ImportError:
-        # onnxruntime build without the OpenVINO tooling module — no-op.
+        # onnxruntime build without the OpenVINO tooling module â€” no-op.
         pass
     except FileNotFoundError:
-        # OpenVINO site-packages dir absent — no-op.
+        # OpenVINO site-packages dir absent â€” no-op.
         pass
     except SystemExit as exc:
         # add_openvino_libs_to_path() calls sys.exit() when OpenVINO libs
